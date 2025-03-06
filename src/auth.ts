@@ -27,5 +27,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             session.user.id = token.id;
             return session;
         },
+        async redirect({ url, baseUrl }) {
+            // Redirect to dashboard after sign in
+            if (url.startsWith(baseUrl)) {
+                return `${baseUrl}/dashboard/songs`;
+            }
+            // Prevents open redirects
+            else if (url.startsWith("/")) {
+                return `${baseUrl}${url}`;
+            }
+            return baseUrl;
+        },
     },
 });

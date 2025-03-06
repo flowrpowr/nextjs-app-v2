@@ -1,9 +1,14 @@
-"use client";
+import { signIn } from "@/auth";
 
-export default function HomePage() {
+export default function Home() {
     return (
-        <div>
-            <h1>Welcome to Flowr</h1>
-        </div>
+        <form
+            action={async () => {
+                "use server";
+                await signIn();
+            }}
+        >
+            <button type="submit">Sign in</button>
+        </form>
     );
 }
