@@ -1,283 +1,249 @@
 "use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useRef,
-  useEffect,
-} from "react";
+import React, { createContext, useContext, useState, useRef, useEffect } from "react";
 
-// Song interface aligned with Prisma schema
-export interface Song {
-  id: string;
-  title: string;
-  duration: number | null;
-  artistId: string;
-  audioUrl: string | null;
-  artist?: {
+// Track interface aligned with Prisma schema
+export interface Track {
     id: string;
-    name: string;
-  };
-  releaseId?: string | null;
-  Release?: {
-    id: string;
+    coverUrl: string;
     title: string;
-    coverUrl: string | null;
-  } | null;
-  streamCount: number;
+    artistName: string;
+    artistId: string;
+    audioUrl: string;
+    duration: number;
+    liked: boolean;
 }
 
 interface AudioContextType {
-  currentSong: Song | null;
-  queue: Song[];
-  isPlaying: boolean;
-  volume: number;
-  currentTime: number;
-  duration: number;
-  play: (song?: Song) => void;
-  pause: () => void;
-  togglePlayPause: () => void;
-  next: () => void;
-  previous: () => void;
-  addToQueue: (song: Song) => void;
-  removeFromQueue: (songId: string) => void;
-  clearQueue: () => void;
-  setQueue: (songs: Song[]) => void;
-  playSong: (song: Song) => void;
-  playSongNext: (song: Song) => void;
-  setVolume: (volume: number) => void;
-  seek: (time: number) => void;
-  incrementStreams: () => void;
+    queueIndex: number;
+    queue: Track[];
+
+    isPlaying: boolean;
+    volume: number;
+
+    currentTime: number;
+    duration: number;
+
+    play: (track: Track) => void;
+    pause: () => void;
+    togglePlayPause: () => void;
+
+    next: () => void;
+    previous: () => void;
+
+    addToQueue: (track: Track) => void;
+    clearQueue: () => void;
+
+    setQueue: (tracks: Track[], startIndex?: number) => void; // Add optional startIndex parameter
+    setVolume: (volume: number) => void;
+    seek: (time: number) => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
 export function AudioProvider({ children }: { children: React.ReactNode }) {
-  const [currentSong, setCurrentSong] = useState<Song | null>(null);
-  const [queue, setQueue] = useState<Song[]>([]);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.7);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
+    const [queueIndex, setQueueIndex] = useState<number>(-1);
+    const [queue, setQueue] = useState<Track[]>([]);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [volume, setVolume] = useState(0.7);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Initialize audio element
-  useEffect(() => {
-    const audio = new Audio();
-    audioRef.current = audio;
+    // Get current track based on queue index
+    const currentTrack = queueIndex >= 0 && queueIndex < queue.length ? queue[queueIndex] : null;
 
-    // Set initial volume
-    audio.volume = volume;
+    // Initialize audio element
+    useEffect(() => {
+        const audio = new Audio();
+        audioRef.current = audio;
 
-    // Add event listeners
-    audio.addEventListener("timeupdate", handleTimeUpdate);
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
-    audio.addEventListener("ended", handleTrackEnded);
-    audio.addEventListener("play", handlePlay);
+        // Set initial volume
+        audio.volume = volume;
 
-    return () => {
-      audio.removeEventListener("timeupdate", handleTimeUpdate);
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      audio.removeEventListener("ended", handleTrackEnded);
-      audio.removeEventListener("play", handlePlay);
-      audio.pause();
+        // Add event listeners
+        audio.addEventListener("timeupdate", handleTimeUpdate);
+        audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+        audio.addEventListener("ended", handleTrackEnded);
+        audio.addEventListener("play", handlePlay);
+
+        return () => {
+            audio.removeEventListener("timeupdate", handleTimeUpdate);
+            audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+            audio.removeEventListener("ended", handleTrackEnded);
+            audio.removeEventListener("play", handlePlay);
+            audio.pause();
+        };
+    }, []);
+
+    // Update audio source when current track changes
+    useEffect(() => {
+        if (audioRef.current && currentTrack) {
+            audioRef.current.src = currentTrack.audioUrl || "";
+            setHasStartedPlaying(false);
+
+            if (isPlaying) {
+                audioRef.current.play().catch((err) => console.error("Error playing track:", err));
+            }
+        }
+    }, [queueIndex, queue]);
+
+    // Update audio playback state when isPlaying changes
+    useEffect(() => {
+        if (audioRef.current) {
+            if (isPlaying && currentTrack) {
+                audioRef.current.play().catch((err) => console.error("Error playing track:", err));
+            } else {
+                audioRef.current.pause();
+            }
+        }
+    }, [isPlaying, currentTrack]);
+
+    // Update volume when it changes
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.volume = volume;
+        }
+    }, [volume]);
+
+    const handleTimeUpdate = () => {
+        if (audioRef.current) {
+            setCurrentTime(audioRef.current.currentTime);
+        }
     };
-  }, []);
 
-  // Update audio source when current song changes
-  useEffect(() => {
-    if (audioRef.current && currentSong) {
-      // Use the song ID to construct the URL
-      audioRef.current.src = currentSong.audioUrl || "";
-      setHasStartedPlaying(false);
+    const handleLoadedMetadata = () => {
+        if (audioRef.current) {
+            setDuration(audioRef.current.duration);
+        }
+    };
 
-      if (isPlaying) {
-        audioRef.current
-          .play()
-          .catch((err) => console.error("Error playing song:", err));
-      }
-    }
-  }, [currentSong]);
+    const handlePlay = () => {
+        // Increment stream count only once per track play session
+        if (!hasStartedPlaying && currentTrack) {
+            setHasStartedPlaying(true);
+        }
+    };
 
-  // Update audio playback state when isPlaying changes
-  useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current
-          .play()
-          .catch((err) => console.error("Error playing song:", err));
-      } else {
-        audioRef.current.pause();
-      }
-    }
-  }, [isPlaying]);
+    const handleTrackEnded = () => {
+        next();
+    };
 
-  // Update volume when it changes
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-  }, [volume]);
+    // Play a specific track or the current track
+    const play = (track?: Track) => {
+        if (track) {
+            // Find if track is already in queue
+            const trackIndex = queue.findIndex((t) => t.audioUrl === track.audioUrl);
 
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-    }
-  };
+            if (trackIndex >= 0) {
+                // If track is in queue, set index to it
+                setQueueIndex(trackIndex);
+            }
+        }
+        setIsPlaying(true);
+    };
 
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) {
-      setDuration(audioRef.current.duration);
-    }
-  };
+    const pause = () => {
+        setIsPlaying(false);
+    };
 
-  const handlePlay = () => {
-    // Increment stream count only once per song play session
-    if (!hasStartedPlaying && currentSong) {
-      setHasStartedPlaying(true);
-      incrementStreams();
-    }
-  };
+    const togglePlayPause = () => {
+        setIsPlaying(!isPlaying);
+    };
 
-  const handleTrackEnded = () => {
-    next();
-  };
+    const next = () => {
+        console.log(queue, queueIndex);
+        if (queueIndex < queue.length - 1) {
+            // Move to next track if available
+            setQueueIndex(queueIndex + 1);
+            setIsPlaying(true);
+        } else if (queue.length > 0) {
+            // Loop back to the first track if at the end
+            setQueueIndex(0);
+            setIsPlaying(true);
+        } else {
+            // No tracks in queue
+            setIsPlaying(false);
+        }
+    };
 
-  // Function to increment streams - this would need to call your API
-  const incrementStreams = async () => {
-    if (currentSong) {
-      try {
-        // Call your API to increment the streams count
-        await fetch(`/api/songs/${currentSong.id}/stream`, {
-          method: "POST",
-        });
+    const previous = () => {
+        if (audioRef.current && audioRef.current.currentTime > 3) {
+            // If current track has played for more than 3 seconds, restart it
+            audioRef.current.currentTime = 0;
+        } else if (queueIndex > 0) {
+            // Go to previous track
+            setQueueIndex(queueIndex - 1);
+        } else if (queue.length > 0) {
+            // If at the first track, restart it
+            if (audioRef.current) {
+                audioRef.current.currentTime = 0;
+            }
+        }
+    };
 
-        // Update local state to reflect the change
-        setCurrentSong((prev) =>
-          prev ? { ...prev, streamCount: prev.streamCount + 1 } : null
-        );
-      } catch (error) {
-        console.error("Failed to increment stream count:", error);
-      }
-    }
-  };
+    const addToQueue = (track: Track) => {
+        const newQueue = [...queue, track];
+        setQueue(newQueue);
 
-  // Play a song or resume current song
-  const play = (song?: Song) => {
-    if (song) {
-      setCurrentSong(song);
-    }
-    setIsPlaying(true);
-  };
+        // If nothing is currently playing, start playing the added track
+        if (queueIndex === -1) {
+            setQueueIndex(newQueue.length - 1);
+            setIsPlaying(true);
+        }
+    };
 
-  const pause = () => {
-    setIsPlaying(false);
-  };
+    const clearQueue = () => {
+        setQueue([]);
+        setQueueIndex(-1);
+        setIsPlaying(false);
+    };
 
-  const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
+    const setQueueAndPlay = (tracks: Track[], startIndex: number = 0) => {
+        if (tracks.length > 0) {
+            setQueue(tracks);
+            setQueueIndex(startIndex); // Use the provided index instead of always 0
+            setIsPlaying(true);
+        } else {
+            clearQueue();
+        }
+    };
 
-  const next = () => {
-    if (queue.length > 0) {
-      const nextSong = queue[0];
-      const newQueue = queue.slice(1);
-      setCurrentSong(nextSong);
-      setQueue(newQueue);
-      setIsPlaying(true);
-    } else {
-      // No more songs in queue
-      setIsPlaying(false);
-    }
-  };
+    const seek = (time: number) => {
+        if (audioRef.current) {
+            audioRef.current.currentTime = time;
+            setCurrentTime(time);
+        }
+    };
 
-  const previous = () => {
-    // This is simplified - a real implementation might keep a history
-    if (audioRef.current && audioRef.current.currentTime > 3) {
-      // If current song has played for more than 3 seconds, restart it
-      audioRef.current.currentTime = 0;
-    } else if (currentSong) {
-      // Otherwise go to previous song if there was one
-      // This would require keeping track of play history
-      // For now, just restart the current song
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-      }
-    }
-  };
+    const value = {
+        queueIndex,
+        queue,
+        isPlaying,
+        volume,
+        currentTime,
+        duration,
+        play,
+        pause,
+        togglePlayPause,
+        next,
+        previous,
+        addToQueue,
+        clearQueue,
+        setQueue: setQueueAndPlay,
+        setVolume,
+        seek,
+    };
 
-  const addToQueue = (song: Song) => {
-    setQueue([...queue, song]);
-  };
-
-  const removeFromQueue = (songId: string) => {
-    setQueue(queue.filter((song) => song.id !== songId));
-  };
-
-  const clearQueue = () => {
-    setQueue([]);
-  };
-
-  const setQueueAndPlay = (songs: Song[]) => {
-    if (songs.length > 0) {
-      const [firstSong, ...restSongs] = songs;
-      setCurrentSong(firstSong);
-      setQueue(restSongs);
-      setIsPlaying(true);
-    }
-  };
-
-  const playSong = (song: Song) => {
-    setCurrentSong(song);
-    setIsPlaying(true);
-  };
-
-  const playSongNext = (song: Song) => {
-    setQueue([song, ...queue]);
-  };
-
-  const seekTo = (time: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
-      setCurrentTime(time);
-    }
-  };
-
-  const value = {
-    currentSong,
-    queue,
-    isPlaying,
-    volume,
-    currentTime,
-    duration,
-    play,
-    pause,
-    togglePlayPause,
-    next,
-    previous,
-    addToQueue,
-    removeFromQueue,
-    clearQueue,
-    setQueue: setQueueAndPlay,
-    playSong,
-    playSongNext,
-    setVolume,
-    seek: seekTo,
-    incrementStreams,
-  };
-
-  return (
-    <AudioContext.Provider value={value}>{children}</AudioContext.Provider>
-  );
+    return <AudioContext.Provider value={value}>{children}</AudioContext.Provider>;
 }
 
 export function useAudio() {
-  const context = useContext(AudioContext);
-  if (context === undefined) {
-    throw new Error("useAudio must be used within an AudioProvider");
-  }
-  return context;
+    const context = useContext(AudioContext);
+    if (context === undefined) {
+        throw new Error("useAudio must be used within an AudioProvider");
+    }
+    return context;
 }
