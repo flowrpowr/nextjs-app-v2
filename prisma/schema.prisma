@@ -22,7 +22,7 @@ model User {
   playlists                  Playlist[]
   Release                    Release[]
   sessions                   Session[]
-  releasedTracks             Track[] @relation("releasedTracks")
+  releasedTracks             Track[]    @relation("releasedTracks")
   likedTracks                Track[]    @relation("likedTracks")
 }
 
