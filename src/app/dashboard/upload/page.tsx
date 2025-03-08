@@ -65,7 +65,7 @@ export default function UploadPage() {
   const [releaseTitle, setReleaseTitle] = useState("");
   const [releaseType, setReleaseType] = useState("SINGLE");
   const [genre, setGenre] = useState("");
-  const [artistId, setArtistId] = useState("");
+  //const [artistId, setArtistId] = useState("");
   const [description, setDescription] = useState("");
   const [releaseDate, setReleaseDate] = useState(
     format(new Date(), "yyyy-MM-dd")
@@ -95,7 +95,8 @@ export default function UploadPage() {
     if (!file) return;
     setCoverArtFile(file);
   };
-
+  //get session user ID for artist
+  const session = await auth();
   const handleAudioChange = (
     index: number,
     e: React.ChangeEvent<HTMLInputElement>
