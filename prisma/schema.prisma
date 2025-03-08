@@ -21,7 +21,6 @@ model User {
   accounts                   Account[]
   playlists                  Playlist[]
   Release                    Release[]
-  sessions                   Session[]
   releasedTracks             Track[]    @relation("releasedTracks")
   likedTracks                Track[]    @relation("likedTracks")
 }
@@ -43,23 +42,6 @@ model Account {
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
-}
-
-model Session {
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String
-  expires    DateTime
-
-  @@id([identifier, token])
 }
 
 model Playlist {
@@ -101,7 +83,7 @@ model Release {
   suiId       String?     @unique
   createdAt   DateTime    @default(now())
   updatedAt   DateTime
-  User        User        @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  Artist        User        @relation(fields: [artistId], references: [id], onDelete: Cascade)
   Track       Track[]
 
   @@index([artistId])
@@ -123,11 +105,11 @@ model Track {
   streamCount               Int             @default(0)
   createdAt                 DateTime        @default(now())
   updatedAt                 DateTime
-  releaseId                 String?
+  releaseId                 String
   trackNumber               Int?
   PlaylistTrack             PlaylistTrack[]
   artist                    User            @relation("releasedTracks", fields: [artistId], references: [id], onDelete: Cascade)
-  Release                   Release?        @relation(fields: [releaseId], references: [id])
+  Release                   Release        @relation(fields: [releaseId], references: [id])
   usersWhoLike              User[]          @relation("likedTracks")
 
   @@index([artistId])
