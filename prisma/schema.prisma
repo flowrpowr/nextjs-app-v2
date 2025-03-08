@@ -45,7 +45,7 @@ model Account {
 }
 
 model Playlist {
-  id            String          @id @default(uuid())
+  id            String          @id @default(cuid())
   name          String
   description   String?
   isPublic      Boolean         @default(true)
@@ -73,14 +73,14 @@ model PlaylistTrack {
 }
 
 model Release {
-  id          String      @id
+  id          String      @id @default(cuid())
   title       String
   type        ReleaseType
+  genre                     String?
   description String?
   artistId    String
   coverUrl    String?
-  releaseDate DateTime
-  suiId       String?     @unique
+  releaseDate DateTime    @db.Date
   createdAt   DateTime    @default(now())
   updatedAt   DateTime
   Artist        User        @relation(fields: [artistId], references: [id], onDelete: Cascade)
@@ -91,7 +91,7 @@ model Release {
 }
 
 model Track {
-  id                        String          @id
+  id                        String          @id @default(cuid())
   title                     String
   artistId                  String
   genre                     String?
@@ -105,7 +105,7 @@ model Track {
   createdAt                 DateTime        @default(now())
   updatedAt                 DateTime
   releaseId                 String
-  trackNumber               Int?
+  trackNumber               Int
   PlaylistTrack             PlaylistTrack[]
   artist                    User            @relation("releasedTracks", fields: [artistId], references: [id], onDelete: Cascade)
   Release                   Release        @relation(fields: [releaseId], references: [id])
