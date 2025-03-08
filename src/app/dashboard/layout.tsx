@@ -202,6 +202,19 @@ export default async function DashboardLayout({
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+            <SidebarGroup>
+              <SidebarGroupLabel>Upload</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem key={"Upload Music"}></SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href={`/dashboard/upload`}>
+                      <span>Upload Music</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
           </SidebarContent>
         </Sidebar>
         <SidebarInset className="flex flex-col">
