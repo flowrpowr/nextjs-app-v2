@@ -95,7 +95,6 @@ model Track {
   title                     String
   artistId                  String
   genre                     String?
-  coverUrl                  String?
   audioUrl                  String?
   mimeType                  String?
   fileSize                  Int?
