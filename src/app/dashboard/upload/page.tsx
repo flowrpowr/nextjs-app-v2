@@ -63,6 +63,7 @@ type UploadStatus = {
 export default function UploadPage() {
   //userid
   const { data: session } = useSession();
+  console.log("session:\n", session);
   const artistId = session?.user?.id || "";
   // Release form state
   const [releaseTitle, setReleaseTitle] = useState("");
@@ -465,8 +466,8 @@ export default function UploadPage() {
         const trackResult = await uploadTrack(
           tracks[i],
           i + 1,
-          releaseResult.releaseId,
-          releaseResult.coverUrl
+          releaseResult.releaseId as string,
+          releaseResult.coverUrl as string
         );
         trackResults.push(trackResult);
 

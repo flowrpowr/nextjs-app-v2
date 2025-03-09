@@ -25,6 +25,7 @@ async function getRelease(releaseId: string) {
         select: {
           id: true,
           name: true,
+          username: true,
         },
       },
       Track: {
@@ -58,7 +59,7 @@ async function getRelease(releaseId: string) {
     release: {
       id: releaseRaw.id,
       title: releaseRaw.title,
-      artistName: releaseRaw.Artist.name,
+      artistName: releaseRaw.Artist.username,
       coverUrl: releaseRaw.coverUrl,
       releaseDate: releaseRaw.releaseDate,
     },
@@ -66,7 +67,7 @@ async function getRelease(releaseId: string) {
       id: track.id,
       title: track.title,
       coverUrl: releaseRaw.coverUrl!,
-      artistName: releaseRaw.Artist.name,
+      artistName: releaseRaw.Artist.username,
       artistId: releaseRaw.artistId,
       duration: track.duration!,
       trackNumber: track.trackNumber!,

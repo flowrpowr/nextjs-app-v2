@@ -105,7 +105,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
             const response = await fetch(
               `/api/stream?trackId=${currentTrack.id}&listenerAddress=${listenerAddress}`
             );
-
             if (!response.ok) {
               throw new Error(`Failed to get stream URL: ${response.status}`);
             }
@@ -118,11 +117,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
               setHasStartedPlaying(false);
 
               // If already playing, start the new track
-              if (isPlaying) {
-                audioRef.current
-                  .play()
-                  .catch((err) => console.error("Error playing track:", err));
-              }
+              audioRef.current
+                .play()
+                .catch((err) => console.error("Error playing track:", err));
             } else {
               throw new Error(`Failed to get stream URL: ${data}`);
 
