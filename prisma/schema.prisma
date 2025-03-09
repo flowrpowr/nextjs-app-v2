@@ -8,21 +8,21 @@ datasource db {
 }
 
 model User {
-  id                         String     @id @default(cuid())
-  name                       String    
-  image                      String
-  username                   String?
-  email                      String     @unique
-  emailVerified              DateTime?
-  walletAddress              String?    @unique
-  bio                        String?
-  createdAt                  DateTime   @default(now())
-  updatedAt                  DateTime   @updatedAt
-  accounts                   Account[]
-  playlists                  Playlist[]
-  Release                    Release[]
-  releasedTracks             Track[]    @relation("releasedTracks")
-  likedTracks                Track[]    @relation("likedTracks")
+  id             String     @id @default(cuid())
+  name           String
+  image          String
+  username       String?
+  email          String     @unique
+  emailVerified  DateTime?
+  walletAddress  String?    @unique
+  bio            String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  accounts       Account[]
+  playlists      Playlist[]
+  Release        Release[]
+  releasedTracks Track[]    @relation("releasedTracks")
+  likedTracks    Track[]    @relation("likedTracks")
 }
 
 model Account {
@@ -76,14 +76,14 @@ model Release {
   id          String      @id @default(cuid())
   title       String
   type        ReleaseType
-  genre                     String?
+  genre       String?
   description String?
   artistId    String
   coverUrl    String?
   releaseDate DateTime    @db.Date
   createdAt   DateTime    @default(now())
   updatedAt   DateTime
-  Artist        User        @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  Artist      User        @relation(fields: [artistId], references: [id], onDelete: Cascade)
   Track       Track[]
 
   @@index([artistId])
@@ -91,25 +91,25 @@ model Release {
 }
 
 model Track {
-  id                        String          @id @default(cuid())
-  title                     String
-  artistId                  String
-  genre                     String?
-  audioUrl                  String?
-  mimeType                  String?
-  fileSize                  Int?
-  duration                  Int?
-  uploadedAt                DateTime        @default(now())
-  suiId                     String?         @unique
-  streamCount               Int             @default(0)
-  createdAt                 DateTime        @default(now())
-  updatedAt                 DateTime
-  releaseId                 String
-  trackNumber               Int
-  PlaylistTrack             PlaylistTrack[]
-  artist                    User            @relation("releasedTracks", fields: [artistId], references: [id], onDelete: Cascade)
-  Release                   Release        @relation(fields: [releaseId], references: [id])
-  usersWhoLike              User[]          @relation("likedTracks")
+  id            String          @id @default(cuid())
+  title         String
+  artistId      String
+  genre         String?
+  mimeType      String?
+  fileSize      Int?
+  duration      Int?
+  uploadedAt    DateTime        @default(now())
+  suiId         String?         @unique
+  streamCount   Int             @default(0)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime
+  releaseId     String
+  trackNumber   Int
+  blobName      String?
+  PlaylistTrack PlaylistTrack[]
+  artist        User            @relation("releasedTracks", fields: [artistId], references: [id], onDelete: Cascade)
+  Release       Release         @relation(fields: [releaseId], references: [id])
+  usersWhoLike  User[]          @relation("likedTracks")
 
   @@index([artistId])
   @@index([genre])
