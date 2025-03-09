@@ -37,7 +37,7 @@ export function AudioPlayer() {
     };
 
     return (
-        <div className="flex items-center justify-between w-full bg-background">
+        <div className="flex items-center justify-between w-full bg-background pt-2">
             {/* Track info */}
             <div className="flex items-center space-x-3 w-1/3">
                 {currentTrack ? (
@@ -72,7 +72,7 @@ export function AudioPlayer() {
             </div>
 
             {/* Controls container */}
-            <div className="flex items-center space-x-4 w-2/3 justify-end">
+            <div className="flex items-center space-x-4 w-2/3 justify-end ">
                 {/* Player controls */}
                 <div className="flex items-center space-x-2">
                     <Button variant="ghost" size="icon" onClick={previous} className="h-8 w-8" disabled={!currentTrack}>

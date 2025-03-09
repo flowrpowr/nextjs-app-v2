@@ -10,7 +10,7 @@ const AuthPage = () => {
         if (handled) {
             // Get access token, perform security checks,
             // manage user session, handle errors, and so on.
-            window.location.href = "/dashboard/wallet";
+            window.location.href = "/dashboard/tracks";
         }
     }, [handled]);
 

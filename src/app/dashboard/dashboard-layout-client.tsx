@@ -45,14 +45,6 @@ const artistItems = [
     },
 ];
 
-const suiItems = [
-    {
-        title: "Wallet",
-        url: "/dashboard/wallet",
-        icon: HandCoins,
-    },
-];
-
 interface Playlist {
     id: string;
     name: string;
@@ -64,6 +56,20 @@ interface Playlist {
     updatedAt: Date;
 }
 
+export const localStorageStore = {
+    get: (key: string): string | null => {
+        return localStorage.getItem(key);
+    },
+
+    set: (key: string, value: string): void => {
+        localStorage.setItem(key, value);
+    },
+
+    delete: (key: string): void => {
+        localStorage.removeItem(key);
+    },
+};
+
 // Client component wrapper
 export default function DashboardLayoutClient({
     children,
@@ -73,7 +79,7 @@ export default function DashboardLayoutClient({
     playlists: Playlist[];
 }) {
     return (
-        <EnokiFlowProvider apiKey="enoki_public_6646caa1f30298432565ccca00c4b9a2">
+        <EnokiFlowProvider apiKey="enoki_public_6646caa1f30298432565ccca00c4b9a2" store={localStorageStore}>
             <AudioProvider>
                 <SidebarProvider>
                     <Sidebar>
@@ -158,23 +164,7 @@ export default function DashboardLayoutClient({
                                     </SidebarMenu>
                                 </SidebarGroupContent>
                             </SidebarGroup>
-                            <SidebarGroup>
-                                <SidebarGroupLabel>Sui</SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <SidebarMenu>
-                                        {suiItems.map((item) => (
-                                            <SidebarMenuItem key={item.title}>
-                                                <SidebarMenuButton asChild>
-                                                    <Link href={item.url}>
-                                                        <item.icon />
-                                                        <span>{item.title}</span>
-                                                    </Link>
-                                                </SidebarMenuButton>
-                                            </SidebarMenuItem>
-                                        ))}
-                                    </SidebarMenu>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
+
                             <SidebarGroup>
                                 <SidebarGroupLabel>Upload</SidebarGroupLabel>
                                 <SidebarGroupContent>
@@ -192,11 +182,11 @@ export default function DashboardLayoutClient({
                         </SidebarContent>
                     </Sidebar>
                     <SidebarInset className="flex flex-col">
-                        <div className="flex-1 overflow-auto">
-                            <header className="flex h-16 items-center px-4 border-b">
+                        <div className="flex flex-col flex-1 overflow-auto h-screen">
+                            <main className="flex-1 h-screen p-12">{children}</main>
+                            <header className="h-16 items-center px-4 border-t">
                                 <AudioPlayer />
                             </header>
-                            <main className="flex-1 p-12">{children}</main>
                         </div>
                     </SidebarInset>
                 </SidebarProvider>
