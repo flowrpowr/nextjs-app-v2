@@ -10,6 +10,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         strategy: "jwt",
     },
     callbacks: {
+        async signIn({ user, account, profile, email, credentials }) {
+            const dbUser = await prisma.user.findUnique({
+                where: { id: user?.id },
+                select: { walletAddress: true }, // Or whatever property you want to check
+            });
+            // If user hasn't completed onboarding, send them there
+            if (user && !dbUser?.walletAddress) {
+                return `/dashboard/wallet`;
+            }
+            return "/dashboard/tracks";
+        },
         authorized: async ({ auth }) => {
             // Logged in users are authenticated, otherwise redirect to login page
             return !!auth;
