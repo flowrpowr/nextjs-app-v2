@@ -16,7 +16,7 @@ import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { format } from "date-fns";
-
+import { useSession } from "next-auth/react";
 export type ReleaseUploadData = {
   releaseType: string;
   release_title: string;
@@ -61,20 +61,18 @@ type UploadStatus = {
 };
 
 export default function UploadPage() {
+  //userid
+  const { data: session } = useSession();
+  const artistId = session?.user?.id || "";
   // Release form state
   const [releaseTitle, setReleaseTitle] = useState("");
   const [releaseType, setReleaseType] = useState("SINGLE");
   const [genre, setGenre] = useState("");
-  //const [artistId, setArtistId] = useState("");
   const [description, setDescription] = useState("");
   const [releaseDate, setReleaseDate] = useState(
     format(new Date(), "yyyy-MM-dd")
   );
   const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
-
-  // Adding missing state variables
-  const [currentReleaseId, setCurrentReleaseId] = useState<string>("");
-  const [currentCoverUrl, setCurrentCoverUrl] = useState<string>("");
 
   // Tracks state
   const [tracks, setTracks] = useState<TrackData[]>([
@@ -96,7 +94,6 @@ export default function UploadPage() {
     setCoverArtFile(file);
   };
   //get session user ID for artist
-  const session = await auth();
   const handleAudioChange = (
     index: number,
     e: React.ChangeEvent<HTMLInputElement>
@@ -462,10 +459,6 @@ export default function UploadPage() {
         return;
       }
 
-      // Store releaseId and coverUrl in state
-      setCurrentReleaseId(releaseResult.releaseId);
-      setCurrentCoverUrl(releaseResult.coverUrl);
-
       // Step 2: Upload each track
       const trackResults = [];
       for (let i = 0; i < tracks.length; i++) {
@@ -542,16 +535,6 @@ export default function UploadPage() {
                       id="genre"
                       value={genre}
                       onChange={(e) => setGenre(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="artist-id">Artist ID *</Label>
-                    <Input
-                      id="artist-id"
-                      value={artistId}
-                      onChange={(e) => setArtistId(e.target.value)}
                       required
                     />
                   </div>

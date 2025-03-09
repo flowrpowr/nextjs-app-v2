@@ -11,13 +11,6 @@ export async function POST(request: NextRequest) {
   try {
     // TODO: authenticate
     // Authenticate user
-    /*const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: "Authentication required" },
-        { status: 401 }
-      );
-    }*/
 
     // Parse the JSON body
     const trackData: TrackUploadData = await request.json();
