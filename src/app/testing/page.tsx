@@ -1,19 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
-import { useEnokiFlow, useZkLogin } from "@mysten/enoki/react";
+import { useEnokiFlow } from "@mysten/enoki/react";
 import { Button } from "@/components/ui/button";
 
 export default function Wallet() {
     const enokiFlow = useEnokiFlow();
-    const { address } = useZkLogin();
-
-    useEffect(() => console.log(address), [address]);
-
     const handleSignIn = () => {
         const protocol = window.location.protocol;
         const host = window.location.host;
-        const redirectUrl = `${protocol}//${host}/dashboard/wallet/enoki`;
+        const redirectUrl = `${protocol}//${host}/api/enoki`;
 
         enokiFlow
             .createAuthorizationURL({
@@ -34,12 +29,8 @@ export default function Wallet() {
     };
 
     return (
-        <div>
-            <Button onClick={handleSignIn} variant="outline">
-                Button
-            </Button>
-            {/* Ensure this only renders on the client */}
-            <div>{address}</div>
-        </div>
+        <Button onClick={handleSignIn} variant="outline">
+            Button
+        </Button>
     );
 }
