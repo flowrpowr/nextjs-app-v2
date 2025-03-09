@@ -13,9 +13,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async signIn({ user, account, profile, email, credentials }) {
             const dbUser = await prisma.user.findUnique({
                 where: { id: user?.id },
-                select: { walletAddress: true }, // Or whatever property you want to check
+                select: { walletAddress: true, username: true }, // Or whatever property you want to check
             });
-            // If user hasn't completed onboarding, send them there
+            if (user && !dbUser?.username) {
+                return `/dashboard/onboarding`;
+            }
             if (user && !dbUser?.walletAddress) {
                 return `/dashboard/wallet`;
             }
