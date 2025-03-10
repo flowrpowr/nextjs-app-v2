@@ -98,7 +98,6 @@ export async function createRelease(formData: FormData) {
           artistId: userId,
           genre: genre,
           coverUrl: release.coverUrl, // Use the release cover
-          audioUrl: trackUpload[0].data.url,
           mimeType: trackFile.type,
           fileSize: trackFile.size,
           duration: 0, // This should be calculated from the audio file
