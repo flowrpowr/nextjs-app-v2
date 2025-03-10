@@ -19,6 +19,7 @@ export interface Track {
   artistId: string;
   duration: number;
   liked: boolean;
+  suiId: string;
 }
 
 interface AudioContextType {
@@ -30,6 +31,7 @@ interface AudioContextType {
 
   currentTime: number;
   duration: number;
+  currentTransactionDigest: string;
 
   play: (track?: Track) => void;
   pause: () => void;
@@ -56,6 +58,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
+  const [currentTransactionDigest, setCurrentTransactionDigest] =
+    useState<string>("");
   const zkLogin = useZkLogin();
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -111,11 +115,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
             const data = await response.json();
 
-            if (data.success && data.signedUrl) {
+            if (data.success) {
               console.log(`Received signed URL for track`);
               audioRef.current.src = data.signedUrl;
               setHasStartedPlaying(false);
-
+              setCurrentTransactionDigest(data.suiDigest);
               // If already playing, start the new track
               audioRef.current
                 .play()
@@ -139,6 +143,20 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
     setupTrack();
   }, [currentTrack]);
+
+  // play/pause useEffect yay
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch((error) => {
+          console.error("Error playing audio:", error);
+          setIsPlaying(false); // Reset state if playback fails
+        });
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
 
   // Update volume when it changes
   useEffect(() => {
@@ -275,6 +293,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setQueue: setQueueAndPlay,
     setVolume,
     seek,
+    currentTransactionDigest,
   };
 
   return (

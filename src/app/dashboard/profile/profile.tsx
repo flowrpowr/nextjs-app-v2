@@ -28,7 +28,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
                     description: "Your username has been updated successfully.",
                 });
                 // Redirect to the wallet dashboard on success
-                router.push("/dashboard/wallet");
+                router.push("/dashboard/discover");
             } else {
                 toast.info("Error", {
                     description: result.message || "Something went wrong. Please try again.",
