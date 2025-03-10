@@ -164,6 +164,21 @@ export default function DashboardLayoutClient({
                                         </SidebarMenu>
                                     </SidebarGroupContent>
                                 </SidebarGroup>
+
+                                <SidebarGroup>
+                                    <SidebarGroupLabel>Profile</SidebarGroupLabel>
+                                    <SidebarGroupContent>
+                                        <SidebarMenu>
+                                            <SidebarMenuItem key={"Profile"}>
+                                                <SidebarMenuButton asChild>
+                                                    <Link href={`/dashboard/profile`}>
+                                                        <span>Profile</span>
+                                                    </Link>
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                        </SidebarMenu>
+                                    </SidebarGroupContent>
+                                </SidebarGroup>
                             </SidebarContent>
                         </Sidebar>
                         <SidebarInset className="flex flex-col">
