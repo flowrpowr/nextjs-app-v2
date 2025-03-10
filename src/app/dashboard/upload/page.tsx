@@ -17,7 +17,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { useSession } from "next-auth/react";
-import { revalidatePath } from "next/cache";
 export type ReleaseUploadData = {
   releaseType: string;
   release_title: string;

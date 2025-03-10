@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextRequest, NextResponse } from "next/server";
 
 const backendUrl = process.env.BACKEND_URL || "http://localhost:11111";
