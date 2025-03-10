@@ -144,6 +144,20 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setupTrack();
   }, [currentTrack]);
 
+  // play/pause useEffect yay
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch((error) => {
+          console.error("Error playing audio:", error);
+          setIsPlaying(false); // Reset state if playback fails
+        });
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying]);
+
   // Update volume when it changes
   useEffect(() => {
     if (audioRef.current) {
