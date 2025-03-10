@@ -1,4 +1,3 @@
-// /discover/page.tsx
 import { prisma } from "@/prisma";
 import { Release } from "@/components/release";
 import { Input } from "@/components/ui/input";

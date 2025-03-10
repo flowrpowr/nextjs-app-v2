@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/prisma";
 import { UTApi } from "uploadthing/server";
@@ -108,9 +107,6 @@ export async function createRelease(formData: FormData) {
         },
       });
     }
-
-    // Revalidate the discography page
-    revalidatePath("/dashboard/discography");
 
     // Return success
     return { success: true };

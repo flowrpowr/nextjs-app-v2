@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { useSession } from "next-auth/react";
+import { revalidatePath } from "next/cache";
 export type ReleaseUploadData = {
   releaseType: string;
   release_title: string;
@@ -63,7 +64,6 @@ type UploadStatus = {
 export default function UploadPage() {
   //userid
   const { data: session } = useSession();
-  console.log("session:\n", session);
   const artistId = session?.user?.id || "";
   // Release form state
   const [releaseTitle, setReleaseTitle] = useState("");
@@ -94,7 +94,6 @@ export default function UploadPage() {
     if (!file) return;
     setCoverArtFile(file);
   };
-  //get session user ID for artist
   const handleAudioChange = (
     index: number,
     e: React.ChangeEvent<HTMLInputElement>
@@ -255,7 +254,6 @@ export default function UploadPage() {
       }
 
       updateReleaseStatus("success", 100, "Release created successfully");
-
       // Return success with release ID and cover URL
       return {
         success: true,
@@ -449,7 +447,7 @@ export default function UploadPage() {
 
       // Step 1: Upload the release
       const releaseResult = await uploadRelease();
-
+      console.log(releaseResult);
       if (
         !releaseResult.success ||
         !releaseResult.releaseId ||
