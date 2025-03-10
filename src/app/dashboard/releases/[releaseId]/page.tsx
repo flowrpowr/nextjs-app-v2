@@ -71,6 +71,7 @@ async function getRelease(releaseId: string) {
       artistId: releaseRaw.artistId,
       duration: track.duration!,
       trackNumber: track.trackNumber!,
+      suiId: track.suiId,
       // Check if the current user has liked this track
       liked: userId ? track.usersWhoLike.length > 0 : false,
     })).sort((a, b) => a.trackNumber - b.trackNumber),
